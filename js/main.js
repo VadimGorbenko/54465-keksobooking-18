@@ -1,9 +1,19 @@
 'use strict';
 
+var ENTER_KEY = 13;
+
 var TYPES = ['palace', 'flat', 'house', 'bungalo'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var TIMES = ['12:00', '13:00', '14:00'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
+
+/**
+ * @param {String} selector - css совместимый селектор.
+ * @return {HTMLElement} - первый встретившийся html элемент, подходящий под переданный селектор.
+ */
+function $(selector) {
+  return document.querySelector(selector);
+}
 
 function getAdverts() {
   var adverts = [];
@@ -69,10 +79,34 @@ function generatePins() {
 }
 
 function drawPins() {
-  document.querySelector('.map').classList.remove('map--faded');
+  // document.querySelector('.map').classList.remove('map--faded');
   var pinsFragment = generatePins();
 
   document.querySelector('.map__pins').appendChild(pinsFragment);
 }
 
-drawPins();
+// drawPins();
+$('.map__pin--main').addEventListener('mousedown', function () {
+  setStateToActive();
+});
+
+$('.map__pin--main').addEventListener('keydown', function (evt) {
+  if (evt.type === 'keydown' && evt.keyCode === ENTER_KEY) {
+    setStateToActive();
+  }
+});
+
+function setStateToActive(evt) {
+  $('.map').classList.remove('map--faded');
+  var adForm = $('.ad-form');
+  var filtersForm = $('.map__filters');
+
+  adForm.classList.remove('ad-form--disabled');
+  Array.prototype.forEach.call(adForm.elements, enableFieldset);
+}
+
+function enableFieldset(element) {
+  if (element.tagName === 'FIELDSET') {
+    element.removeAttribute('disabled');
+  }
+}
