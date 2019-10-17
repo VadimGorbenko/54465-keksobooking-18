@@ -8,6 +8,7 @@ var TIMES = ['12:00', '13:00', '14:00'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 
 /**
+ * @description jQuery says: "Hello there!". Alias for document.querySelector();
  * @param {String} selector - css совместимый селектор.
  * @return {HTMLElement} - первый встретившийся html элемент, подходящий под переданный селектор.
  */
@@ -15,6 +16,7 @@ function $(selector) {
   return document.querySelector(selector);
 }
 
+// Генерируем предложение метки.
 function getAdverts() {
   var adverts = [];
   var advertItem;
@@ -59,6 +61,7 @@ function getAdverts() {
   return adverts;
 }
 
+// генерируем метки.
 function generatePins() {
   var pin;
   var adverts = getAdverts();
@@ -78,35 +81,101 @@ function generatePins() {
   return fragment;
 }
 
-function drawPins() {
-  // document.querySelector('.map').classList.remove('map--faded');
-  var pinsFragment = generatePins();
+// Рисуем метки
+// function drawPins() {
+//   // document.querySelector('.map').classList.remove('map--faded');
+//   var pinsFragment = generatePins();
 
-  document.querySelector('.map__pins').appendChild(pinsFragment);
-}
+//   document.querySelector('.map__pins').appendChild(pinsFragment);
+// }
 
-// drawPins();
-$('.map__pin--main').addEventListener('mousedown', function () {
+var mainPin = $('.map__pin--main');
+var adForm = $('.ad-form');
+
+// Добавляем обработчик опускания кнопки мыши на основную метку.
+mainPin.addEventListener('mousedown', function () {
   setStateToActive();
+  setAddress('active');
 });
 
-$('.map__pin--main').addEventListener('keydown', function (evt) {
+// Обработчик нажатия клавиши на основную метку по Enter
+mainPin.addEventListener('keydown', function (evt) {
   if (evt.type === 'keydown' && evt.keyCode === ENTER_KEY) {
     setStateToActive();
   }
 });
 
-function setStateToActive(evt) {
+// Переводит интерфейс в "активное" состояние.
+function setStateToActive() {
   $('.map').classList.remove('map--faded');
-  var adForm = $('.ad-form');
-  var filtersForm = $('.map__filters');
+  // var filtersForm = $('.map__filters');
 
   adForm.classList.remove('ad-form--disabled');
   Array.prototype.forEach.call(adForm.elements, enableFieldset);
 }
 
+// вешаем disabled атрибут на все fieldset в выбранной форме.
+// @param {HTMLElement} element - html element формы.
 function enableFieldset(element) {
   if (element.tagName === 'FIELDSET') {
     element.removeAttribute('disabled');
+  }
+}
+
+/**
+ * @description - записывает координаты в поле ввода адреса.
+ * @param {String} state - состояние карты. default - изначальное, active - интерактивное.
+ */
+function setAddress(state) {
+  var addressInput = $('#address');
+  var coords = getCoords(state);
+  addressInput.value = coords;
+}
+
+/**
+ * @description - Расчитываем кординаты адреса
+ * @param {String} state - состояние карты. default - изначальное, active - интерактивное.
+ * @return {String} - '%d, %d' - значение по X, и по Y;
+ */
+function getCoords(state) {
+  var pinStyles = getComputedStyle(mainPin);
+  var pinAfterStyles = getComputedStyle(mainPin, 'after');
+  var x = parseInt(pinStyles.left, 10);
+  var y = parseInt(pinStyles.top, 10);
+
+  if (state === 'default') {
+    // Если начальное состояние
+    // то прибавляем ширину делённую на 2, чтобы получить центр по X.
+    x += (parseInt(pinStyles.width, 10) / 2);
+    // то прибавляем высоту делённую на 2, чтобы получить центр по Y.
+    y += (parseInt(pinStyles.height, 10) / 2);
+  }
+  if (state === 'active') {
+    // Если активное состояние
+    // то прибавляем координаты острого конца указателя
+    x += parseInt(pinAfterStyles.left, 10) + (parseInt(pinAfterStyles.width, 10) / 2);
+    y += parseInt(pinAfterStyles.top, 10) + parseInt(pinAfterStyles.height, 10);
+
+  }
+  return x + ', ' + y;
+}
+
+setAddress('default');
+
+// Добавляем обработчик отравки формы, в котором будем её валидировать.
+adForm.addEventListener('submit', adFormSubmitHandler);
+
+/**
+ * @description обработчик(валидатор) отправки формы.
+ * @param {Event} evt - объект события.
+ */
+function adFormSubmitHandler(evt) {
+  evt.preventDefault();
+  var form = evt.target;
+  // Если число комнат и число гостей !=, то
+  if (form.rooms.value !== form.capacity.value) {
+    form.capacity.setCustomValidity('Число комнат не соответствует числу жильцов!');
+  } else {
+    form.submit();
   }
 }
