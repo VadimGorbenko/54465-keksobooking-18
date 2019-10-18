@@ -6,5 +6,6 @@
     mainPin: window.$('.map__pin--main'),
     adForm: window.$('.ad-form'),
     addressInput: window.$('#address'),
+    dataURL: 'https://js.dump.academy/keksobooking/data',
   };
 })();
