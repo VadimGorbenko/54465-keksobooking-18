@@ -17,7 +17,7 @@ window.consts.mainPin.addEventListener('keydown', function (evt) {
 function setStateToActive() {
   window.$('.map').classList.remove('map--faded');
   // var filtersForm = $('.map__filters');
-
+  window.drawPins();
   window.consts.adForm.classList.remove('ad-form--disabled');
   Array.prototype.forEach.call(window.consts.adForm.elements, enableFieldset);
 }

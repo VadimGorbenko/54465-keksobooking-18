@@ -1,14 +1,15 @@
 'use strict';
 
 (function () {
-  // генерируем метки.
-  window.generatePins = function () {
+  // генерируем метки на основе данных.
+  window.generatePins = function (data) {
     var pin;
-    var adverts = window.getAdverts();
-    var template = document.querySelector('#pin').content.querySelector('.map__pin');
+    // var adverts = window.getAdverts(); // Старая версия - до появления api.
+    var template = window.$('#pin').content.querySelector('.map__pin');
     var fragment = document.createDocumentFragment();
 
-    adverts.forEach(function (advert) {
+    // Перебираем данные, чтобы сгенерировать метки:
+    data.forEach(function (advert) {
       pin = template.cloneNode(true);
       pin.style.left = advert.location.x + 'px';
       pin.style.top = advert.location.y + 'px';
@@ -18,13 +19,33 @@
       fragment.appendChild(pin);
     });
 
-    return fragment;
+    window.renderPins(fragment);
   };
 
-  // Рисуем метки
+  // В случае возникновения ошибки получения данных
+  window.generationFailed = function (error) {
+    var errorTemplate = window.$('#error').content.querySelector('.error');
+    window.$('main').prepend(errorTemplate);
+    throw new Error(error.message);
+  };
+
+  // Запрашиваем данные для меток и выполняем generatesPin в случае успеха, generationFailed в случае ошибки.
   window.drawPins = function () {
-    var pinsFragment = window.generatePins();
-    document.querySelector('.map__pins').appendChild(pinsFragment);
+    window.API.getData(window.consts.dataURL, window.generatePins, window.generationFailed);
+  };
+
+  // Рисуем метки, предварительно отчистив предыдущие, чтобы не дублировались.
+  window.renderPins = function (fragment) {
+    window.clearPins();
+    window.$('.map__pins').appendChild(fragment);
+  };
+
+  // метод удаления всех существующих меток на карте, кроме основной.
+  window.clearPins = function () {
+    document.querySelectorAll('.map__pin:not(.map__pin--main)')
+      .forEach(function (item) {
+        item.remove();
+      });
   };
 
 })();
