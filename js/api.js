@@ -2,13 +2,41 @@
 
 (function () {
   window.API = {
-    getData: function (url, resolve, reject) {
+    /**
+     * @description Метод получения данных с сервера.
+     * @param {Object} params - Объект параметров запроса.
+     * @param {String} params.url - урл запроса.
+     * @param {Number} params.top - количество возвращаемых элементов "сверху".
+     * @param {String} params.filterBy - id элемента, по значению которого необходимо произвести фильтр.
+     * @param {Function} resolve - callback в случае успешного выполнения запроса.
+     * @param {Function} reject - callback в случае ошибки выполнения запроса.
+     */
+    getData: function (params, resolve, reject) {
       var request = new XMLHttpRequest();
       request.responseType = 'json';
 
       request.addEventListener('load', function () {
+        var response;
+        var filterValue;
         if (request.status === 200) {
-          resolve(request.response);
+          response = request.response;
+
+          // Если был передан фильтр, то
+          if (params.hasOwnProperty('filterBy') && params.filterBy.length > 0) {
+            // находим элемент и его значение - будет использоваться в качестве фильтра.
+            filterValue = window.$('#' + params.filterBy).value;
+
+            response = response.filter(function (responseItem) {
+              return responseItem.offer[params.filterBy] === filterValue;
+            });
+          }
+
+          // Если был передан ограничитель количества
+          if (params.hasOwnProperty('top') && params.top > 0 && response.length > params.top) {
+            response = response.slice(0, params.top);
+          }
+
+          resolve(response);
         } else {
           reject('Cтатус ответа: ' + request.status + ' ' + request.statusText);
         }
@@ -24,7 +52,7 @@
 
       request.timeout = 10000; // 10s
 
-      request.open('GET', url);
+      request.open('GET', params.url);
       request.send();
     }
   };
