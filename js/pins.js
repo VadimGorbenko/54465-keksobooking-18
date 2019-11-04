@@ -54,6 +54,10 @@
       });
   };
 
+  /**
+   * @description функция для отрисовки карточки объявления.
+   * @param {Event} evt - объект события
+   */
   window.showCard = function (evt) {
     var target;
 

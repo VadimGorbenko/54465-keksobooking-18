@@ -21,12 +21,13 @@
   window.$('#timein').addEventListener('change', function (evt) {
     window.$('#timeout').value = evt.target.value;
   });
+
   // выезд
   window.$('#timeout').addEventListener('change', function (evt) {
     window.$('#timein').value = evt.target.value;
   });
 
-
+  // Добавление обработчика изменения минимальной цены за ночь в зависимости от типа жилья размещаемого объявления.
   window.$('#type').addEventListener('change', function (evt) {
     var chosenType = evt.target.value;
     var minValue;
