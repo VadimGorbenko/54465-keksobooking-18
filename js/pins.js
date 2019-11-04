@@ -19,6 +19,46 @@
       fragment.appendChild(pin);
     });
 
+    var firstCardData = data[0];
+    var firstCardOffer = firstCardData.offer;
+    var cardTemplate = window.$('#card').content.querySelector('.map__card');
+    var firstCard = cardTemplate.cloneNode(true);
+    firstCard.querySelector('.popup__title').textContent = firstCardOffer.title;
+    firstCard.querySelector('.popup__text--address').textContent = firstCardOffer.address;
+    firstCard.querySelector('.popup__text--price').textContent = firstCardOffer.price + '₽/ночь';
+    firstCard.querySelector('.popup__type').textContent = window.decodeHouseType(firstCardOffer.type); // TODO: пофиксить тип
+    firstCard.querySelector('.popup__text--capacity').textContent = firstCardOffer.rooms + ' комнаты для ' + firstCardOffer.guests + ' гостей';
+    firstCard.querySelector('.popup__text--time').textContent = 'Заезд после ' + firstCardOffer.checkin + ', выезд до' + firstCardOffer.checkout;
+
+    var cardFeature = document.createElement('li');
+    cardFeature.classList.add('popup__feature');
+    var cardFeatures = firstCardOffer.features.map(function (feature) {
+      var newFeature = cardFeature.cloneNode();
+      newFeature.classList.add('popup__feature--' + feature);
+      return newFeature;
+    });
+
+    var featuresCont = firstCard.querySelector('.popup__features');
+    featuresCont.innerHTML = '';
+    cardFeatures.forEach(function (feature) {
+      featuresCont.append(feature);
+    });
+
+    firstCard.querySelector('.popup__description').textContet = firstCardOffer.description;
+    var cardPhoto = firstCard.querySelector('.popup__photos').querySelector('.popup__photo');
+    var cardPhotos = firstCardOffer.photos.map(function (src) {
+      var newPhoto = cardPhoto.cloneNode();
+      newPhoto.setAttribute('src', src);
+      return newPhoto;
+    });
+    var photosCont = firstCard.querySelector('.popup__photos');
+    photosCont.innerHTML = '';
+    cardPhotos.forEach(function (photo) {
+      photosCont.append(photo);
+    });
+    firstCard.querySelector('.popup__avatar').setAttribute('src', firstCardData.author.avatar);
+
+    window.$('.map__filters-container').before(firstCard);
     window.renderPins(fragment);
   };
 
