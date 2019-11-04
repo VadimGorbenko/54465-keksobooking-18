@@ -16,4 +16,38 @@
     }
   };
 
+  // Добавляем обработчики событий для связи изменения времени заезда и выезда
+  // заезд
+  window.$('#timein').addEventListener('change', function (evt) {
+    window.$('#timeout').value = evt.target.value;
+  });
+  // выезд
+  window.$('#timeout').addEventListener('change', function (evt) {
+    window.$('#timein').value = evt.target.value;
+  });
+
+
+  window.$('#type').addEventListener('change', function (evt) {
+    var chosenType = evt.target.value;
+    var minValue;
+
+    switch (chosenType) {
+      case 'flat':
+        minValue = 1000;
+        break;
+      case 'house':
+        minValue = 5000;
+        break;
+      case 'palace':
+        minValue = 10000;
+        break;
+      default:
+        minValue = 0;
+        break;
+    }
+
+    window.$('#price').setAttribute('min', minValue);
+    window.$('#price').setAttribute('placeholder', minValue);
+
+  });
 })();

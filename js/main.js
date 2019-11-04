@@ -32,5 +32,24 @@ function enableFieldset(element) {
 
 window.setAddress('default');
 
-// Добавляем обработчик отравки формы, в котором будем её валидировать.
+// Добавляем обработчик отправки формы, в котором будем её валидировать.
 window.consts.adForm.addEventListener('submit', window.adFormSubmitHandler);
+
+// добавляем обработчик открытия карточки по указателю
+window.consts.pinsCont.addEventListener('click', window.showCard);
+
+// Обработчик закрытия(удаления) карточки объявления.
+window.document.body.addEventListener('click', function (evt) {
+  if (evt.target.classList.contains('popup__close')) {
+    evt.target.parentElement.remove();
+  }
+});
+
+window.document.body.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === window.consts.ESC_KEY) {
+    var cardPopup = window.$('.map__card.popup');
+    if (cardPopup) {
+      cardPopup.remove();
+    }
+  }
+});
