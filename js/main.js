@@ -25,7 +25,6 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
     } else if (newX > rightLimit) {
       newX = rightLimit;
     }
-    console.log(newX, rightLimit);
     if (newY < topLimit) {
       newY = topLimit;
     } else if (newY > bottomLimit) {
@@ -35,8 +34,8 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
     pin.style.top = newY + 'px';
   }
 
-  function onMouseMove(evt) {
-    dragMainPin(evt.x, evt.y);
+  function onMouseMove(moveEvt) {
+    dragMainPin(moveEvt.x, moveEvt.y);
     window.setAddress('active');
   }
 
