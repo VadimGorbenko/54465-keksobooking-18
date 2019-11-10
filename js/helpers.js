@@ -10,6 +10,11 @@
     return document.querySelector(selector);
   };
 
+  /**
+   * @description декодируем тип жилья с латиницы на кирилицу.
+   * @param {String} type
+   * @return {String}
+   */
   window.decodeHouseType = function (type) {
     var decodedType;
     switch (type) {
