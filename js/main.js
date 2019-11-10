@@ -1,9 +1,49 @@
 'use strict';
 
 // Добавляем обработчик опускания кнопки мыши на основную метку.
-window.consts.mainPin.addEventListener('mousedown', function () {
+window.consts.mainPin.addEventListener('mousedown', function (evt) {
   setStateToActive();
-  window.setAddress('active');
+  var pin = evt.currentTarget;
+  var coords = pin.getBoundingClientRect();
+  var coordsX = coords.left;
+  var coordsY = coords.top;
+  var leftLimit = -(coords.width / 2);
+  var rightLimit = pin.parentElement.getBoundingClientRect().width - coords.width / 2;
+  var topLimit = 130;
+  var bottomLimit = 630;
+  var shiftX = evt.x - coordsX;
+  var shiftY = evt.y - coordsY;
+
+  dragMainPin(evt.x, evt.y);
+
+  function dragMainPin(x, y) {
+    var newX = x - shiftX;
+    var newY = y - shiftY;
+
+    if (newX < leftLimit) {
+      newX = leftLimit;
+    } else if (newX > rightLimit) {
+      newX = rightLimit;
+    }
+    if (newY < topLimit) {
+      newY = topLimit;
+    } else if (newY > bottomLimit) {
+      newY = bottomLimit;
+    }
+    pin.style.left = newX + 'px';
+    pin.style.top = newY + 'px';
+  }
+
+  function onMouseMove(moveEvt) {
+    dragMainPin(moveEvt.x, moveEvt.y);
+    window.setAddress('active');
+  }
+
+  pin.parentElement.addEventListener('mousemove', onMouseMove);
+
+  pin.addEventListener('mouseup', function () {
+    pin.parentElement.removeEventListener('mousemove', onMouseMove);
+  });
 });
 
 // Обработчик нажатия клавиши на основную метку по Enter
