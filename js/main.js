@@ -68,6 +68,12 @@ function setStateToActive() {
   Array.prototype.forEach.call(window.consts.adForm.elements, enableFieldset);
 }
 
+function setStateToDefault() {
+  window.consts.mainPin.style.left = '570px';
+  window.consts.mainPin.style.top = '375px';
+  window.setAddress('active');
+}
+
 // вешаем disabled атрибут на все fieldset в выбранной форме.
 // @param {HTMLElement} element - html element формы.
 function enableFieldset(element) {

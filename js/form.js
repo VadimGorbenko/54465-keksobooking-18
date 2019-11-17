@@ -12,9 +12,64 @@
     if (form.rooms.value !== form.capacity.value) {
       form.capacity.setCustomValidity('Число комнат не соответствует числу жильцов!');
     } else {
-      form.submit();
+      // form.submit();
+      // debugger;
+      form.address.removeAttribute('disabled');
+      window.API.sendData(form, formSendSuccessHandler, formSendFailHandler);
+      form.address.setAttribute('disabled', true);
     }
   };
+
+  function formSendSuccessHandler() {
+    var form = window.consts.adForm;
+    form.reset();
+    window.clearCards();
+    window.clearPins();
+    setStateToDefault();
+    showSuccessMessage();
+  }
+
+  function formSendFailHandler() {
+    var template = window.$('#error').content.querySelector('.error');
+    var message = template.cloneNode(true);
+    message.addEventListener('click', function (evt) {
+      evt.currentTarget.remove();
+    });
+    window.$('main').prepend(message);
+    document.addEventListener('keydown', closeFailMessage);
+  }
+
+  function showSuccessMessage() {
+    var template = window.$('#success').content.querySelector('.success');
+    var message = template.cloneNode(true);
+    message.addEventListener('click', function (evt) {
+      evt.currentTarget.remove();
+    });
+    window.$('main').prepend(message);
+    document.addEventListener('keydown', closeSuccessMessage);
+  }
+
+  function closeSuccessMessage(evt) {
+    var message;
+    if (evt.keyCode === window.consts.ESC_KEY) {
+      message = window.$('.success');
+      if (message) {
+        message.remove();
+        message = null;
+      }
+    }
+  }
+
+  function closeFailMessage(evt) {
+    var message;
+    if (evt.keyCode === window.consts.ESC_KEY) {
+      message = window.$('.error');
+      if (message) {
+        message.remove();
+        message = null;
+      }
+    }
+  }
 
   // Добавляем обработчики событий для связи изменения времени заезда и выезда
   // заезд
