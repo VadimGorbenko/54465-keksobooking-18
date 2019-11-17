@@ -25,7 +25,7 @@
     form.reset();
     window.clearCards();
     window.clearPins();
-    setStateToDefault();
+    window.setStateToDefault();
     showSuccessMessage();
   }
 
