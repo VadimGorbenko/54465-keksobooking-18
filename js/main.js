@@ -3,7 +3,13 @@
 // Добавляем обработчик опускания кнопки мыши на основную метку.
 window.consts.mainPin.addEventListener('mousedown', function (evt) {
   setStateToActive();
+
   var pin = evt.currentTarget;
+  var pinParent = pin.parentElement;
+  var pinParentCoords = pinParent.getBoundingClientRect();
+  var pinParentCoordsX = pinParentCoords.left;
+  var pinParentCoordsY = pinParentCoords.top;
+
   var coords = pin.getBoundingClientRect();
   var coordsX = coords.left;
   var coordsY = coords.top;
@@ -17,8 +23,8 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
   dragMainPin(evt.x, evt.y);
 
   function dragMainPin(x, y) {
-    var newX = x - shiftX;
-    var newY = y - shiftY;
+    var newX = x - pinParentCoordsX - shiftX;
+    var newY = y - pinParentCoordsY - shiftY;
 
     if (newX < leftLimit) {
       newX = leftLimit;
@@ -60,6 +66,12 @@ function setStateToActive() {
   window.drawPins(filterCallback.bind(null, window.generatePins));
   window.consts.adForm.classList.remove('ad-form--disabled');
   Array.prototype.forEach.call(window.consts.adForm.elements, enableFieldset);
+}
+/* eslint-disable-next-line */
+function setStateToDefault() {
+  window.consts.mainPin.style.left = '570px';
+  window.consts.mainPin.style.top = '375px';
+  window.setAddress('active');
 }
 
 function filterCallback(afterFilterCallback, data) {

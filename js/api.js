@@ -37,6 +37,27 @@
 
       request.open('GET', params.url);
       request.send();
+    },
+
+    sendData: function (form, successHandler, failHandler) {
+      var method = form.method;
+      var url = form.action;
+      var formData = new FormData(form);
+
+      var request = new XMLHttpRequest();
+
+      request.onload = function () {
+        if (request.status === 200) {
+          successHandler();
+        }
+
+        if (request.status >= 400) {
+          failHandler();
+        }
+      };
+
+      request.open(method, url);
+      request.send(formData);
     }
   };
 })();

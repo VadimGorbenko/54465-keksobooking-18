@@ -52,6 +52,14 @@
       });
   };
 
+  // метод удаления всех открытых карточек предложений.
+  window.clearCards = function () {
+    document.querySelectorAll('.map__card.popup')
+      .forEach(function (item) {
+        item.remove();
+      });
+  };
+
   /**
    * @description функция для отрисовки карточки объявления.
    * @param {Event} evt - объект события
@@ -111,9 +119,7 @@
       });
       firstCard.querySelector('.popup__avatar').setAttribute('src', firstCardData.author.avatar);
 
-      if (window.$('.map__card.popup')) {
-        window.$('.map__card.popup').remove();
-      }
+      window.clearCards();
       window.consts.filterCont.before(firstCard);
     }
   };
