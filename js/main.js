@@ -67,7 +67,7 @@ function setStateToActive() {
   window.consts.adForm.classList.remove('ad-form--disabled');
   Array.prototype.forEach.call(window.consts.adForm.elements, enableFieldset);
 }
-
+/* eslint-disable-next-line */
 function setStateToDefault() {
   window.consts.mainPin.style.left = '570px';
   window.consts.mainPin.style.top = '375px';
