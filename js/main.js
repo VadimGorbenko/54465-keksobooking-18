@@ -1,4 +1,5 @@
 'use strict';
+var GLOBALfilterForm = window.utils.$('.map__filters');
 
 // Добавляем обработчик опускания кнопки мыши на основную метку.
 window.consts.mainPin.addEventListener('mousedown', function (evt) {
@@ -54,7 +55,7 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
 
 // Обработчик нажатия клавиши на основную метку по Enter
 window.consts.mainPin.addEventListener('keydown', function (evt) {
-  if (evt.type === 'keydown' && evt.keyCode === window.consts.ENTER_KEY) {
+  if (window.utils.isEnterKey(evt.keyCode)) {
     setStateToActive();
   }
 });
@@ -63,7 +64,7 @@ var filterNGenPins = filterCallback(window.generatePins);
 
 // Переводит интерфейс в "активное" состояние.
 function setStateToActive() {
-  window.$('.map').classList.remove('map--faded');
+  window.utils.$('.map').classList.remove('map--faded');
   // var filtersForm = $('.map__filters');
   window.drawPins(filterNGenPins);
   window.consts.adForm.classList.remove('ad-form--disabled');
@@ -83,7 +84,7 @@ function setStateToDefault() {
  */
 function filterCallback(afterFilterCallback) {
   return function (data) {
-    var filterForm = window.consts.filterForm;
+    var filterForm = GLOBALfilterForm;
     var filtersData = new FormData(filterForm);
 
     var filteredData = data.filter(function (dataItem) {
@@ -141,11 +142,9 @@ function getPriceCategory(price) {
   var category = 'any';
   if (price <= 10000) {
     category = 'low';
-  }
-  if (price <= 49999) {
+  } else if (price <= 49999) {
     category = 'middle';
-  }
-  if (price >= 50000) {
+  } else if (price >= 50000) {
     category = 'high';
   }
   return category;
@@ -164,9 +163,6 @@ window.setAddress('default');
 // Добавляем обработчик отправки формы, в котором будем её валидировать.
 window.consts.adForm.addEventListener('submit', window.adFormSubmitHandler);
 
-// добавляем обработчик открытия карточки по указателю
-window.consts.pinsCont.addEventListener('click', window.showCard);
-
 // Обработчик закрытия(удаления) popups блоков.
 window.document.body.addEventListener('click', function (evt) {
   if (evt.target.classList.contains('popup__close')) {
@@ -176,8 +172,8 @@ window.document.body.addEventListener('click', function (evt) {
 
 // Обработчик закрытия(удаления) карточки объявления по ESC.
 window.document.body.addEventListener('keydown', function (evt) {
-  if (evt.keyCode === window.consts.ESC_KEY) {
-    var cardPopup = window.$('.map__card.popup');
+  if (window.utils.isEscKey(evt.keyCode)) {
+    var cardPopup = window.utils.$('.map__card.popup');
     if (cardPopup) {
       cardPopup.remove();
     }
@@ -185,7 +181,7 @@ window.document.body.addEventListener('keydown', function (evt) {
 });
 
 // Добавляем обработчик изменения поля на форме фильтра
-window.consts.filterForm.addEventListener('change', changeFilterHandler);
+GLOBALfilterForm.addEventListener('change', changeFilterHandler);
 
 function changeFilterHandler() {
   var changeFilters = window.debounce(function () {

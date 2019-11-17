@@ -1,13 +1,15 @@
 'use strict';
 
 (function () {
+
+
   /**
    * @description - записывает координаты в поле ввода адреса.
    * @param {String} state - состояние карты. default - изначальное, active - интерактивное.
    */
   window.setAddress = function (state) {
     var coords = window.getCoords(state);
-    window.consts.addressInput.value = coords;
+    window.utils.$('#address').value = coords;
   };
 
   /**

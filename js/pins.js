@@ -1,11 +1,13 @@
 'use strict';
 
 (function () {
+  var MAP_FILTER_CONT = window.utils.$('.map__filters-container');
+
   // генерируем метки на основе данных.
   window.generatePins = function (data) {
     var pin;
     // var adverts = window.getAdverts(); // Старая версия - до появления api.
-    var template = window.$('#pin').content.querySelector('.map__pin');
+    var template = window.utils.$('#pin').content.querySelector('.map__pin');
     var fragment = document.createDocumentFragment();
 
     // Перебираем данные, чтобы сгенерировать метки:
@@ -25,23 +27,20 @@
 
   // В случае возникновения ошибки получения данных
   window.generationFailed = function (error) {
-    var errorTemplate = window.$('#error').content.querySelector('.error');
-    window.$('main').prepend(errorTemplate);
+    var errorTemplate = window.utils.$('#error').content.querySelector('.error');
+    window.utils.$('main').prepend(errorTemplate);
     throw new Error(error.message);
   };
 
   // Запрашиваем данные для меток и выполняем generatesPin в случае успеха, generationFailed в случае ошибки.
   window.drawPins = function (filterCallback) {
-    var params = {
-      url: window.consts.dataURL,
-    };
-    window.API.getData(params, filterCallback, window.generationFailed);
+    window.API.getData(filterCallback, window.generationFailed);
   };
 
   // Рисуем метки, предварительно отчистив предыдущие, чтобы не дублировались.
   window.renderPins = function (fragment) {
     window.clearPins();
-    window.$('.map__pins').appendChild(fragment);
+    window.utils.$('.map__pins').appendChild(fragment);
   };
 
   // метод удаления всех существующих меток на карте, кроме основной.
@@ -58,6 +57,30 @@
       .forEach(function (item) {
         item.remove();
       });
+  };
+
+  /**
+   * @description декодируем тип жилья с латиницы на кирилицу.
+   * @param {String} type
+   * @return {String}
+   */
+  window.decodeHouseType = function (type) {
+    var decodedType;
+    switch (type) {
+      case 'bungalo':
+        decodedType = 'Бунгало';
+        break;
+      case 'house':
+        decodedType = 'Дом';
+        break;
+      case 'palace':
+        decodedType = 'Дворец';
+        break;
+      default:
+        decodedType = 'Квартира';
+        break;
+    }
+    return decodedType;
   };
 
   /**
@@ -82,7 +105,7 @@
     if (!target.classList.contains('map__pin--main')) {
       var firstCardData = target.data;
       var firstCardOffer = firstCardData.offer;
-      var cardTemplate = window.$('#card').content.querySelector('.map__card');
+      var cardTemplate = window.utils.$('#card').content.querySelector('.map__card');
       var firstCard = cardTemplate.cloneNode(true);
       firstCard.querySelector('.popup__title').textContent = firstCardOffer.title;
       firstCard.querySelector('.popup__text--address').textContent = firstCardOffer.address;
@@ -120,8 +143,11 @@
       firstCard.querySelector('.popup__avatar').setAttribute('src', firstCardData.author.avatar);
 
       window.clearCards();
-      window.consts.filterCont.before(firstCard);
+      MAP_FILTER_CONT.before(firstCard);
     }
   };
+
+  // добавляем обработчик открытия карточки по указателю
+  window.utils.$('.map__pins').addEventListener('click', window.showCard);
 
 })();

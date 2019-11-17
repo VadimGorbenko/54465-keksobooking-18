@@ -1,23 +1,24 @@
 'use strict';
 
 (function () {
+  var SUCCESS_STATUS_CODE = 200;
+  var FAIL_STATUS_CODE = 400;
+  var REQUEST_TIMEOUT_MS = 10000;
+  var REQUEST_GET_METHOD = 'GET';
+  var PINS_DATA_SOURS = 'https://js.dump.academy/keksobooking/data';
   window.API = {
     /**
      * @description Метод получения данных с сервера.
-     * @param {Object} params - Объект параметров запроса.
-     * @param {String} params.url - урл запроса.
-     * @param {Number} params.top - количество возвращаемых элементов "сверху".
-     * @param {String} params.filterBy - id элемента, по значению которого необходимо произвести фильтр.
      * @param {Function} resolve - callback в случае успешного выполнения запроса.
      * @param {Function} reject - callback в случае ошибки выполнения запроса.
      */
-    getData: function (params, resolve, reject) {
+    getData: function (resolve, reject) {
       var request = new XMLHttpRequest();
       request.responseType = 'json';
 
       request.addEventListener('load', function () {
         var response;
-        if (request.status === 200) {
+        if (request.status === SUCCESS_STATUS_CODE) {
           response = request.response;
           resolve(response);
         } else {
@@ -33,9 +34,9 @@
         reject('Запрос не успел выполниться за ' + request.timeout + 'мс');
       });
 
-      request.timeout = 10000; // 10s
+      request.timeout = REQUEST_TIMEOUT_MS;
 
-      request.open('GET', params.url);
+      request.open(REQUEST_GET_METHOD, PINS_DATA_SOURS);
       request.send();
     },
 
@@ -47,11 +48,11 @@
       var request = new XMLHttpRequest();
 
       request.onload = function () {
-        if (request.status === 200) {
+        if (request.status === SUCCESS_STATUS_CODE) {
           successHandler();
         }
 
-        if (request.status >= 400) {
+        if (request.status >= FAIL_STATUS_CODE) {
           failHandler();
         }
       };
