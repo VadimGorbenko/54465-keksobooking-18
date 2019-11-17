@@ -59,11 +59,13 @@ window.consts.mainPin.addEventListener('keydown', function (evt) {
   }
 });
 
+var filterNGenPins = filterCallback(window.generatePins);
+
 // Переводит интерфейс в "активное" состояние.
 function setStateToActive() {
   window.$('.map').classList.remove('map--faded');
   // var filtersForm = $('.map__filters');
-  window.drawPins(filterCallback.bind(null, window.generatePins));
+  window.drawPins(filterNGenPins);
   window.consts.adForm.classList.remove('ad-form--disabled');
   Array.prototype.forEach.call(window.consts.adForm.elements, enableFieldset);
 }
@@ -74,40 +76,67 @@ function setStateToDefault() {
   window.setAddress('active');
 }
 
-function filterCallback(afterFilterCallback, data) {
-  var filterForm = window.consts.filterForm;
-  var filtersData = new FormData(filterForm);
+/**
+ * "Фабрка" для функции обратного вызова фильрации данных, после их получения.
+ * @param {Function} afterFilterCallback - callback, в который передадутся отфильтрованные данные.
+ * @return {Function} функция, которую нужно передавать в качестве коллбэка в метод рисования меток на карте.
+ */
+function filterCallback(afterFilterCallback) {
+  return function (data) {
+    var filterForm = window.consts.filterForm;
+    var filtersData = new FormData(filterForm);
 
-  var filteredData = data.filter(function (dataItem) {
-    var isMatch = false;
-    if (dataItem.hasOwnProperty('offer')) {
-      isMatch = true;
+    var filteredData = data.filter(function (dataItem) {
+      var isMatch = false;
+      // если если информация о предложении
+      if (dataItem.hasOwnProperty('offer')) {
+        isMatch = true;
+        // Перебираем все данные с формы-фильтра и сверяя значения фильтруем данные с сервера.
+        filtersData.forEach(function (value, key) {
+          if (value !== 'any') {
+            var keyAsInData;
+            var dataItemValue;
+            // Если да, значит фильтры про общие данные
+            if (key.startsWith('housing')) {
+              keyAsInData = key.replace('housing-', '');
+              dataItemValue = dataItem.offer[keyAsInData];
 
-      filtersData.forEach(function (value, key) {
-        if (value !== 'any') {
-          var keyAsInData = key.replace('housing-', '');
-          var dataItemValue = dataItem.offer[keyAsInData];
+              if (keyAsInData === 'price') {
+                dataItemValue = getPriceCategory(dataItemValue);
+              }
 
-          if (keyAsInData === 'price') {
-            dataItemValue = getPriceCategory(dataItemValue);
+              if (value !== String(dataItemValue)) {
+                isMatch = false;
+              }
+              // Иначе из дополнительных опций
+            } else {
+              dataItemValue = dataItem.offer[key];
+              // Если выбранное значение не находится в массиве доп опций объявления, то оно не подходит.
+              if (dataItemValue.indexOf(value) === -1) {
+                isMatch = false;
+              }
+            }
+
           }
+        });
+      }
 
-          if (value !== String(dataItemValue)) {
-            isMatch = false;
-          }
-        }
-      });
-    }
+      return isMatch;
 
-    return isMatch;
+    });
 
-  });
+    // Фильтруем чтобы всегда было не больше 5ти меток.
+    filteredData = filteredData.slice(0, 5);
 
-  filteredData = filteredData.slice(0, 5);
-
-  afterFilterCallback(filteredData);
+    afterFilterCallback(filteredData);
+  };
 }
 
+/**
+ * Match`ер числовых значений цены и значений соответствующего поля на форме фильтра.
+ * @param {Number} price - цена.
+ * @return {String} соответствующее цене значение из поля фильтра.
+ */
 function getPriceCategory(price) {
   var category = 'any';
   if (price <= 10000) {
@@ -155,11 +184,15 @@ window.document.body.addEventListener('keydown', function (evt) {
   }
 });
 
+// Добавляем обработчик изменения поля на форме фильтра
 window.consts.filterForm.addEventListener('change', changeFilterHandler);
 
-function changeFilterHandler(evt){
-    window.debounce(function(){
-      window.clearPins();
-      window.clearCards();
-    })
+function changeFilterHandler() {
+  var changeFilters = window.debounce(function () {
+    window.drawPins(filterNGenPins);
+    window.clearPins();
+    window.clearCards();
+  });
+
+  changeFilters();
 }
