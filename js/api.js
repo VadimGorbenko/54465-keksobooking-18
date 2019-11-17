@@ -17,25 +17,8 @@
 
       request.addEventListener('load', function () {
         var response;
-        var filterValue;
         if (request.status === 200) {
           response = request.response;
-
-          // Если был передан фильтр, то
-          if (params.hasOwnProperty('filterBy') && params.filterBy.length > 0) {
-            // находим элемент и его значение - будет использоваться в качестве фильтра.
-            filterValue = window.$('#' + params.filterBy).value;
-
-            response = response.filter(function (responseItem) {
-              return responseItem.offer[params.filterBy] === filterValue;
-            });
-          }
-
-          // Если был передан ограничитель количества
-          if (params.hasOwnProperty('top') && params.top > 0 && response.length > params.top) {
-            response = response.slice(0, params.top);
-          }
-
           resolve(response);
         } else {
           reject('Cтатус ответа: ' + request.status + ' ' + request.statusText);

@@ -31,13 +31,11 @@
   };
 
   // Запрашиваем данные для меток и выполняем generatesPin в случае успеха, generationFailed в случае ошибки.
-  window.drawPins = function () {
+  window.drawPins = function (filterCallback) {
     var params = {
       url: window.consts.dataURL,
-      top: 5,
-      filterBy: 'type',
     };
-    window.API.getData(params, window.generatePins, window.generationFailed);
+    window.API.getData(params, filterCallback, window.generationFailed);
   };
 
   // Рисуем метки, предварительно отчистив предыдущие, чтобы не дублировались.

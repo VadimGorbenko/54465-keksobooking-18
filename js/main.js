@@ -57,9 +57,57 @@ window.consts.mainPin.addEventListener('keydown', function (evt) {
 function setStateToActive() {
   window.$('.map').classList.remove('map--faded');
   // var filtersForm = $('.map__filters');
-  window.drawPins();
+  window.drawPins(filterCallback.bind(null, window.generatePins));
   window.consts.adForm.classList.remove('ad-form--disabled');
   Array.prototype.forEach.call(window.consts.adForm.elements, enableFieldset);
+}
+
+function filterCallback(afterFilterCallback, data) {
+  var filterForm = window.consts.filterForm;
+  var filtersData = new FormData(filterForm);
+
+  var filteredData = data.filter(function (dataItem) {
+    var isMatch = false;
+    if (dataItem.hasOwnProperty('offer')) {
+      isMatch = true;
+
+      filtersData.forEach(function (value, key) {
+        if (value !== 'any') {
+          var keyAsInData = key.replace('housing-', '');
+          var dataItemValue = dataItem.offer[keyAsInData];
+
+          if (keyAsInData === 'price') {
+            dataItemValue = getPriceCategory(dataItemValue);
+          }
+
+          if (value !== String(dataItemValue)) {
+            isMatch = false;
+          }
+        }
+      });
+    }
+
+    return isMatch;
+
+  });
+
+  filteredData = filteredData.slice(0, 5);
+
+  afterFilterCallback(filteredData);
+}
+
+function getPriceCategory(price) {
+  var category = 'any';
+  if (price <= 10000) {
+    category = 'low';
+  }
+  if (price <= 49999) {
+    category = 'middle';
+  }
+  if (price >= 50000) {
+    category = 'high';
+  }
+  return category;
 }
 
 // вешаем disabled атрибут на все fieldset в выбранной форме.
@@ -94,3 +142,12 @@ window.document.body.addEventListener('keydown', function (evt) {
     }
   }
 });
+
+window.consts.filterForm.addEventListener('change', changeFilterHandler);
+
+function changeFilterHandler(evt){
+    window.debounce(function(){
+      window.clearPins();
+      window.clearCards();
+    })
+}

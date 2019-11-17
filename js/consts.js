@@ -6,6 +6,7 @@
     ESC_KEY: 27,
     pinsCont: window.$('.map__pins'),
     mainPin: window.$('.map__pin--main'),
+    filterForm: window.$('.map__filters'),
     adForm: window.$('.ad-form'),
     addressInput: window.$('#address'),
     dataURL: 'https://js.dump.academy/keksobooking/data',
