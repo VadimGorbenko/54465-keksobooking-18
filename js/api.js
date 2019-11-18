@@ -5,7 +5,11 @@
   var FAIL_STATUS_CODE = 400;
   var REQUEST_TIMEOUT_MS = 10000;
   var REQUEST_GET_METHOD = 'GET';
+  var REQUEST_RESPONSE_TYPE = 'json';
+  var REQUEST_ERROR_MESSAGE = 'Произошла ошибка соединения';
+  var REQUEST_TIMEOUT_MESSAGE = 'Запрос не успел выполниться за ';
   var PINS_DATA_SOURS = 'https://js.dump.academy/keksobooking/data';
+
   window.API = {
     /**
      * @description Метод получения данных с сервера.
@@ -14,24 +18,22 @@
      */
     getData: function (resolve, reject) {
       var request = new XMLHttpRequest();
-      request.responseType = 'json';
+      request.responseType = REQUEST_RESPONSE_TYPE;
 
       request.addEventListener('load', function () {
         var response;
         if (request.status === SUCCESS_STATUS_CODE) {
           response = request.response;
           resolve(response);
-        } else {
-          reject('Cтатус ответа: ' + request.status + ' ' + request.statusText);
         }
       });
 
       request.addEventListener('error', function () {
-        reject('Произошла ошибка соединения');
+        reject(REQUEST_ERROR_MESSAGE);
       });
 
       request.addEventListener('timeout', function () {
-        reject('Запрос не успел выполниться за ' + request.timeout + 'мс');
+        reject(REQUEST_TIMEOUT_MESSAGE + request.timeout + 'мс');
       });
 
       request.timeout = REQUEST_TIMEOUT_MS;

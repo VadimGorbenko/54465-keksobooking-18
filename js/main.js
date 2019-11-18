@@ -1,11 +1,14 @@
 'use strict';
-var GLOBALfilterForm = window.utils.$('.map__filters');
 
-// Добавляем обработчик опускания кнопки мыши на основную метку.
+// Добавляем обработчик опускания кнопки мыши на основную метку. Данный обработчик отслеживает перемещение основной метки и меняет значение адреса.
 window.consts.mainPin.addEventListener('mousedown', function (evt) {
+  var TOP_LIMIT = 130;
+  var BOTTOM_LIMIT = 630;
+
   setStateToActive();
 
   var pin = evt.currentTarget;
+
   var pinParent = pin.parentElement;
   var pinParentCoords = pinParent.getBoundingClientRect();
   var pinParentCoordsX = pinParentCoords.left;
@@ -15,15 +18,19 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
   var coordsX = coords.left;
   var coordsY = coords.top;
   var leftLimit = -(coords.width / 2);
-  var rightLimit = pin.parentElement.getBoundingClientRect().width - coords.width / 2;
-  var topLimit = 130;
-  var bottomLimit = 630;
+  var rightLimit = pinParentCoords.width - coords.width / 2;
   var shiftX = evt.x - coordsX;
   var shiftY = evt.y - coordsY;
 
   dragMainPin(evt.x, evt.y);
 
+  /**
+   * @description передвигаем метку, проверяя лимиты
+   * @param {Number} x - соответствующая координата, на которую нужно сместить.
+   * @param {Number} y - соответствующая координата, на которую нужно сместить.
+   */
   function dragMainPin(x, y) {
+    // корректировка координат, чтобы можно было хватать за любое место метки.
     var newX = x - pinParentCoordsX - shiftX;
     var newY = y - pinParentCoordsY - shiftY;
 
@@ -32,18 +39,20 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
     } else if (newX > rightLimit) {
       newX = rightLimit;
     }
-    if (newY < topLimit) {
-      newY = topLimit;
-    } else if (newY > bottomLimit) {
-      newY = bottomLimit;
+
+    if (newY < TOP_LIMIT) {
+      newY = TOP_LIMIT;
+    } else if (newY > BOTTOM_LIMIT) {
+      newY = BOTTOM_LIMIT;
     }
+
     pin.style.left = newX + 'px';
     pin.style.top = newY + 'px';
   }
 
   function onMouseMove(moveEvt) {
     dragMainPin(moveEvt.x, moveEvt.y);
-    window.setAddress('active');
+    window.address.setAddress('active');
   }
 
   pin.parentElement.addEventListener('mousemove', onMouseMove);
@@ -60,77 +69,23 @@ window.consts.mainPin.addEventListener('keydown', function (evt) {
   }
 });
 
-var filterNGenPins = filterCallback(window.generatePins);
-
 // Переводит интерфейс в "активное" состояние.
 function setStateToActive() {
   window.utils.$('.map').classList.remove('map--faded');
-  // var filtersForm = $('.map__filters');
-  window.drawPins(filterNGenPins);
-  window.consts.adForm.classList.remove('ad-form--disabled');
-  Array.prototype.forEach.call(window.consts.adForm.elements, enableFieldset);
+  window.pins.drawPins(window.filterForm.filterCallback);
+  window.consts.newForm.classList.remove('ad-form--disabled');
+  Array.prototype.forEach.call(window.consts.newForm.elements, enableFieldset);
 }
+
+// Отключим линтинг для следующей строки, так как эта функция используется в другом модуле. Тем не менее, она относится к скрипту самой странице, поэтому размещена здесь.
 /* eslint-disable-next-line */
 function setStateToDefault() {
-  window.consts.mainPin.style.left = '570px';
-  window.consts.mainPin.style.top = '375px';
-  window.setAddress('active');
-}
+  var MAIN_PIN_DEFAULT_LEFT = '570px';
+  var MAIN_PIN_DEFAULT_TOP = '375px';
 
-/**
- * "Фабрка" для функции обратного вызова фильрации данных, после их получения.
- * @param {Function} afterFilterCallback - callback, в который передадутся отфильтрованные данные.
- * @return {Function} функция, которую нужно передавать в качестве коллбэка в метод рисования меток на карте.
- */
-function filterCallback(afterFilterCallback) {
-  return function (data) {
-    var filterForm = GLOBALfilterForm;
-    var filtersData = new FormData(filterForm);
-
-    var filteredData = data.filter(function (dataItem) {
-      var isMatch = false;
-      // если если информация о предложении
-      if (dataItem.hasOwnProperty('offer')) {
-        isMatch = true;
-        // Перебираем все данные с формы-фильтра и сверяя значения фильтруем данные с сервера.
-        filtersData.forEach(function (value, key) {
-          if (value !== 'any') {
-            var keyAsInData;
-            var dataItemValue;
-            // Если да, значит фильтры про общие данные
-            if (key.startsWith('housing')) {
-              keyAsInData = key.replace('housing-', '');
-              dataItemValue = dataItem.offer[keyAsInData];
-
-              if (keyAsInData === 'price') {
-                dataItemValue = getPriceCategory(dataItemValue);
-              }
-
-              if (value !== String(dataItemValue)) {
-                isMatch = false;
-              }
-              // Иначе из дополнительных опций
-            } else {
-              dataItemValue = dataItem.offer[key];
-              // Если выбранное значение не находится в массиве доп опций объявления, то оно не подходит.
-              if (dataItemValue.indexOf(value) === -1) {
-                isMatch = false;
-              }
-            }
-
-          }
-        });
-      }
-
-      return isMatch;
-
-    });
-
-    // Фильтруем чтобы всегда было не больше 5ти меток.
-    filteredData = filteredData.slice(0, 5);
-
-    afterFilterCallback(filteredData);
-  };
+  window.consts.mainPin.style.left = MAIN_PIN_DEFAULT_LEFT;
+  window.consts.mainPin.style.top = MAIN_PIN_DEFAULT_TOP;
+  window.address.setAddress('active');
 }
 
 /**
@@ -139,12 +94,17 @@ function filterCallback(afterFilterCallback) {
  * @return {String} соответствующее цене значение из поля фильтра.
  */
 function getPriceCategory(price) {
+  var LOW_PRICE_LIMIT = 10000;
+  var MIDDLE_PRICE_LIMIT = 49999;
+  var HIGH_PRICE_LIMIT = 50000;
+
   var category = 'any';
-  if (price <= 10000) {
+
+  if (price <= LOW_PRICE_LIMIT) {
     category = 'low';
-  } else if (price <= 49999) {
+  } else if (price <= MIDDLE_PRICE_LIMIT) {
     category = 'middle';
-  } else if (price >= 50000) {
+  } else if (price >= HIGH_PRICE_LIMIT) {
     category = 'high';
   }
   return category;
@@ -158,37 +118,4 @@ function enableFieldset(element) {
   }
 }
 
-window.setAddress('default');
-
-// Добавляем обработчик отправки формы, в котором будем её валидировать.
-window.consts.adForm.addEventListener('submit', window.adFormSubmitHandler);
-
-// Обработчик закрытия(удаления) popups блоков.
-window.document.body.addEventListener('click', function (evt) {
-  if (evt.target.classList.contains('popup__close')) {
-    evt.target.parentElement.remove();
-  }
-});
-
-// Обработчик закрытия(удаления) карточки объявления по ESC.
-window.document.body.addEventListener('keydown', function (evt) {
-  if (window.utils.isEscKey(evt.keyCode)) {
-    var cardPopup = window.utils.$('.map__card.popup');
-    if (cardPopup) {
-      cardPopup.remove();
-    }
-  }
-});
-
-// Добавляем обработчик изменения поля на форме фильтра
-GLOBALfilterForm.addEventListener('change', changeFilterHandler);
-
-function changeFilterHandler() {
-  var changeFilters = window.debounce(function () {
-    window.drawPins(filterNGenPins);
-    window.clearPins();
-    window.clearCards();
-  });
-
-  changeFilters();
-}
+window.address.setAddress('default');
