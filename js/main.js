@@ -75,6 +75,7 @@ function setStateToActive() {
   window.pins.drawPins(window.filterForm.filterCallback);
   window.consts.newForm.classList.remove('ad-form--disabled');
   Array.prototype.forEach.call(window.consts.newForm.elements, enableFieldset);
+  window.address.setAddress('active');
 }
 
 // Отключим линтинг для следующей строки, так как эта функция используется в другом модуле. Тем не менее, она относится к скрипту самой странице, поэтому размещена здесь.
@@ -86,28 +87,6 @@ function setStateToDefault() {
   window.consts.mainPin.style.left = MAIN_PIN_DEFAULT_LEFT;
   window.consts.mainPin.style.top = MAIN_PIN_DEFAULT_TOP;
   window.address.setAddress('active');
-}
-
-/**
- * Match`ер числовых значений цены и значений соответствующего поля на форме фильтра.
- * @param {Number} price - цена.
- * @return {String} соответствующее цене значение из поля фильтра.
- */
-function getPriceCategory(price) {
-  var LOW_PRICE_LIMIT = 10000;
-  var MIDDLE_PRICE_LIMIT = 49999;
-  var HIGH_PRICE_LIMIT = 50000;
-
-  var category = 'any';
-
-  if (price <= LOW_PRICE_LIMIT) {
-    category = 'low';
-  } else if (price <= MIDDLE_PRICE_LIMIT) {
-    category = 'middle';
-  } else if (price >= HIGH_PRICE_LIMIT) {
-    category = 'high';
-  }
-  return category;
 }
 
 // вешаем disabled атрибут на все fieldset в выбранной форме.

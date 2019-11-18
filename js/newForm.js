@@ -50,11 +50,11 @@
         if (window.utils.isEscKey(evt.keyCode)) {
           message.remove();
           message = null;
-          document.removeEventListener('keydown', closeMessage)
+          document.removeEventListener('keydown', closeMessage);
         }
       }
     }
-  }
+  };
 
   // Добавляем обработчик отправки формы, в котором будем её валидировать.
   window.consts.newForm.addEventListener('submit', window.newForm.submitHandler);

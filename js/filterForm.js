@@ -12,7 +12,7 @@
 
   window.filterForm = {
     filterCallback: filterCallbackFabrick(window.pins.generatePins),
-  }
+  };
 
   /**
    * "Фабрика" для функции обратного вызова фильтрации данных, после их получения.
@@ -49,7 +49,7 @@
                 }
 
                 // Иначе из дополнительных опций features
-              } else if(key === DATA_FEATURES_KEY){
+              } else if (key === DATA_FEATURES_KEY) {
                 dataItemValue = dataItem.offer[key];
                 // Если выбранное значение не находится в массиве доп опций объявления, то оно не подходит.
                 if (dataItemValue.indexOf(value) === -1) {
@@ -74,6 +74,29 @@
     };
   }
 
+
+  /**
+   * Match`ер числовых значений цены и значений соответствующего поля на форме фильтра.
+   * @param {Number} price - цена.
+   * @return {String} соответствующее цене значение из поля фильтра.
+   */
+  function getPriceCategory(price) {
+    var LOW_PRICE_LIMIT = 10000;
+    var MIDDLE_PRICE_LIMIT = 49999;
+    var HIGH_PRICE_LIMIT = 50000;
+
+    var category = 'any';
+
+    if (price <= LOW_PRICE_LIMIT) {
+      category = 'low';
+    } else if (price <= MIDDLE_PRICE_LIMIT) {
+      category = 'middle';
+    } else if (price >= HIGH_PRICE_LIMIT) {
+      category = 'high';
+    }
+    return category;
+  }
+
   // Добавляем обработчик изменения поля на форме фильтра
   FILTER_FORM.addEventListener('change', changeFilterHandler);
 
@@ -86,6 +109,6 @@
 
     changeFilters();
 
-  };
+  }
 
-})()
+})();

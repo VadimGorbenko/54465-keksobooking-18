@@ -18,23 +18,26 @@
      * @return {String} - '%d, %d' - значение по X, и по Y;
      */
     getCoords: function (state) {
-      var pinStyles = getComputedStyle(window.consts.mainPin);
-      var pinAfterStyles = getComputedStyle(window.consts.mainPin, 'after');
-      var x = parseInt(pinStyles.left, 10);
-      var y = parseInt(pinStyles.top, 10);
+      var POINTER_HEIGHT = 22;
+
+      var pinParams = window.consts.mainPin.getBoundingClientRect();
+      var pointerPeakX = pinParams.width / 2;
+      var pointerPeakY = pinParams.height + POINTER_HEIGHT;
+      var x = pinParams.left;
+      var y = pinParams.top;
 
       if (state === 'default') {
         // Если начальное состояние
         // то прибавляем ширину делённую на 2, чтобы получить центр по X.
-        x += (parseInt(pinStyles.width, 10) / 2);
+        x += pinParams.width / 2;
         // то прибавляем высоту делённую на 2, чтобы получить центр по Y.
-        y += (parseInt(pinStyles.height, 10) / 2);
+        y += pinParams.height / 2;
       }
       if (state === 'active') {
         // Если активное состояние
         // то прибавляем координаты острого конца указателя
-        x += parseInt(pinAfterStyles.left, 10) + (parseInt(pinAfterStyles.width, 10) / 2);
-        y += parseInt(pinAfterStyles.top, 10) + parseInt(pinAfterStyles.height, 10);
+        x += pointerPeakX;
+        y += pointerPeakY;
 
       }
       return x + ', ' + y;
