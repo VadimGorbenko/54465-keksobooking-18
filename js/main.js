@@ -1,42 +1,63 @@
 'use strict';
 
-// Добавляем обработчик опускания кнопки мыши на основную метку.
+window.app = {
+  isDataLoaded: false,
+};
+
+// Добавляем обработчик опускания кнопки мыши на основную метку. Данный обработчик отслеживает перемещение основной метки и меняет значение адреса.
 window.consts.mainPin.addEventListener('mousedown', function (evt) {
-  setStateToActive();
+  var TOP_LIMIT = 130;
+  var BOTTOM_LIMIT = 630;
+
+  window.state.setActive();
+
   var pin = evt.currentTarget;
+  var pinParent = pin.parentElement;
+
+  var pinParentCoords = pinParent.getBoundingClientRect();
+  var pinParentCoordsX = pinParentCoords.left;
+  var pinParentCoordsY = pinParentCoords.top;
+
   var coords = pin.getBoundingClientRect();
-  var coordsX = coords.left;
-  var coordsY = coords.top;
+  var coordsX = pin.offsetLeft;
+  var coordsY = pin.offsetTop;
+  var shiftX = evt.clientX - pinParentCoordsX - coordsX;
+  var shiftY = evt.clientY - pinParentCoordsY - coordsY;
+
   var leftLimit = -(coords.width / 2);
-  var rightLimit = pin.parentElement.getBoundingClientRect().width - coords.width / 2;
-  var topLimit = 130;
-  var bottomLimit = 630;
-  var shiftX = evt.x - coordsX;
-  var shiftY = evt.y - coordsY;
+  var rightLimit = pinParentCoords.width - coords.width / 2;
 
-  dragMainPin(evt.x, evt.y);
+  dragMainPin(evt.clientX, evt.clientY);
 
+  /**
+   * @description передвигаем метку, проверяя лимиты
+   * @param {Number} x - соответствующая координата, на которую нужно сместить.
+   * @param {Number} y - соответствующая координата, на которую нужно сместить.
+   */
   function dragMainPin(x, y) {
-    var newX = x - shiftX;
-    var newY = y - shiftY;
+    // корректировка координат, чтобы можно было хватать за любое место метки.
+    var newX = x - pinParentCoordsX - shiftX;
+    var newY = y - pinParentCoordsY - shiftY;
 
     if (newX < leftLimit) {
       newX = leftLimit;
     } else if (newX > rightLimit) {
       newX = rightLimit;
     }
-    if (newY < topLimit) {
-      newY = topLimit;
-    } else if (newY > bottomLimit) {
-      newY = bottomLimit;
+
+    if (newY < TOP_LIMIT) {
+      newY = TOP_LIMIT;
+    } else if (newY > BOTTOM_LIMIT) {
+      newY = BOTTOM_LIMIT;
     }
+
     pin.style.left = newX + 'px';
     pin.style.top = newY + 'px';
   }
 
   function onMouseMove(moveEvt) {
     dragMainPin(moveEvt.x, moveEvt.y);
-    window.setAddress('active');
+    window.address.setAddress('active');
   }
 
   pin.parentElement.addEventListener('mousemove', onMouseMove);
@@ -48,49 +69,10 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
 
 // Обработчик нажатия клавиши на основную метку по Enter
 window.consts.mainPin.addEventListener('keydown', function (evt) {
-  if (evt.type === 'keydown' && evt.keyCode === window.consts.ENTER_KEY) {
-    setStateToActive();
+  if (window.utils.isEnterKey(evt.keyCode)) {
+    window.state.setActive();
   }
 });
 
-// Переводит интерфейс в "активное" состояние.
-function setStateToActive() {
-  window.$('.map').classList.remove('map--faded');
-  // var filtersForm = $('.map__filters');
-  window.drawPins();
-  window.consts.adForm.classList.remove('ad-form--disabled');
-  Array.prototype.forEach.call(window.consts.adForm.elements, enableFieldset);
-}
 
-// вешаем disabled атрибут на все fieldset в выбранной форме.
-// @param {HTMLElement} element - html element формы.
-function enableFieldset(element) {
-  if (element.tagName === 'FIELDSET') {
-    element.removeAttribute('disabled');
-  }
-}
-
-window.setAddress('default');
-
-// Добавляем обработчик отправки формы, в котором будем её валидировать.
-window.consts.adForm.addEventListener('submit', window.adFormSubmitHandler);
-
-// добавляем обработчик открытия карточки по указателю
-window.consts.pinsCont.addEventListener('click', window.showCard);
-
-// Обработчик закрытия(удаления) popups блоков.
-window.document.body.addEventListener('click', function (evt) {
-  if (evt.target.classList.contains('popup__close')) {
-    evt.target.parentElement.remove();
-  }
-});
-
-// Обработчик закрытия(удаления) карточки объявления по ESC.
-window.document.body.addEventListener('keydown', function (evt) {
-  if (evt.keyCode === window.consts.ESC_KEY) {
-    var cardPopup = window.$('.map__card.popup');
-    if (cardPopup) {
-      cardPopup.remove();
-    }
-  }
-});
+window.address.setAddress('default');

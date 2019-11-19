@@ -1,59 +1,67 @@
 'use strict';
 
 (function () {
+  var SUCCESS_STATUS_CODE = 200;
+  var FAIL_STATUS_CODE = 400;
+  var REQUEST_TIMEOUT_MS = 10000;
+  var REQUEST_GET_METHOD = 'GET';
+  var REQUEST_RESPONSE_TYPE = 'json';
+  var REQUEST_ERROR_MESSAGE = 'Произошла ошибка соединения';
+  var REQUEST_TIMEOUT_MESSAGE = 'Запрос не успел выполниться за ';
+  var PINS_DATA_SOURS = 'https://js.dump.academy/keksobooking/data';
+
   window.API = {
     /**
      * @description Метод получения данных с сервера.
-     * @param {Object} params - Объект параметров запроса.
-     * @param {String} params.url - урл запроса.
-     * @param {Number} params.top - количество возвращаемых элементов "сверху".
-     * @param {String} params.filterBy - id элемента, по значению которого необходимо произвести фильтр.
      * @param {Function} resolve - callback в случае успешного выполнения запроса.
      * @param {Function} reject - callback в случае ошибки выполнения запроса.
      */
-    getData: function (params, resolve, reject) {
+    getData: function (resolve, reject) {
       var request = new XMLHttpRequest();
-      request.responseType = 'json';
+      request.responseType = REQUEST_RESPONSE_TYPE;
 
       request.addEventListener('load', function () {
         var response;
-        var filterValue;
-        if (request.status === 200) {
+        if (request.status === SUCCESS_STATUS_CODE) {
           response = request.response;
-
-          // Если был передан фильтр, то
-          if (params.hasOwnProperty('filterBy') && params.filterBy.length > 0) {
-            // находим элемент и его значение - будет использоваться в качестве фильтра.
-            filterValue = window.$('#' + params.filterBy).value;
-
-            response = response.filter(function (responseItem) {
-              return responseItem.offer[params.filterBy] === filterValue;
-            });
-          }
-
-          // Если был передан ограничитель количества
-          if (params.hasOwnProperty('top') && params.top > 0 && response.length > params.top) {
-            response = response.slice(0, params.top);
-          }
-
+          window.app.isDataLoaded = true;
           resolve(response);
-        } else {
-          reject('Cтатус ответа: ' + request.status + ' ' + request.statusText);
         }
       });
 
       request.addEventListener('error', function () {
-        reject('Произошла ошибка соединения');
+        reject(REQUEST_ERROR_MESSAGE);
       });
 
       request.addEventListener('timeout', function () {
-        reject('Запрос не успел выполниться за ' + request.timeout + 'мс');
+        reject(REQUEST_TIMEOUT_MESSAGE + request.timeout + 'мс');
       });
 
-      request.timeout = 10000; // 10s
+      request.timeout = REQUEST_TIMEOUT_MS;
 
-      request.open('GET', params.url);
+      request.open(REQUEST_GET_METHOD, PINS_DATA_SOURS);
       request.send();
+    },
+
+    sendData: function (form, successHandler, failHandler) {
+      var method = form.method;
+      var url = form.action;
+      var formData = new FormData(form);
+
+      var request = new XMLHttpRequest();
+
+      request.onload = function () {
+        if (request.status === SUCCESS_STATUS_CODE) {
+          successHandler();
+        }
+
+        if (request.status >= FAIL_STATUS_CODE) {
+          failHandler();
+        }
+      };
+
+      request.open(method, url);
+      request.send(formData);
     }
   };
 })();
