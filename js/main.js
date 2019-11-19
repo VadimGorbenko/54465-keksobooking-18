@@ -56,16 +56,20 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
     pin.style.top = newY + 'px';
   }
 
-  function onMouseMove(moveEvt) {
+
+  pin.parentElement.addEventListener('mousemove', mouseMoveHandler);
+
+  document.addEventListener('mouseup', mouseUpHandler);
+
+  function mouseMoveHandler(moveEvt) {
     dragMainPin(moveEvt.pageX, moveEvt.pageY);
     window.address.setAddress('active');
   }
 
-  pin.parentElement.addEventListener('mousemove', onMouseMove);
-
-  pin.addEventListener('mouseup', function () {
-    pin.parentElement.removeEventListener('mousemove', onMouseMove);
-  });
+  function mouseUpHandler() {
+    pin.parentElement.removeEventListener('mousemove', mouseMoveHandler);
+    document.removeEventListener('mouseup', mouseUpHandler);
+  }
 });
 
 // Обработчик нажатия клавиши на основную метку по Enter
