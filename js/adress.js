@@ -22,8 +22,6 @@
 
       var pin = window.consts.mainPin;
       var pinParams = pin.getBoundingClientRect();
-      // var pointerPeakX = pinParams.width / 2;
-      // var pointerPeakY = pinParams.height + POINTER_HEIGHT;
       var pointerPeakX = pinParams.width / 2;
       var pointerPeakY = pinParams.height + POINTER_HEIGHT;
       var x = pin.offsetLeft;
