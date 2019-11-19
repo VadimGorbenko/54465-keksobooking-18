@@ -42,7 +42,6 @@
       message.addEventListener('click', function (evt) {
         evt.currentTarget.remove();
       });
-
       window.document.addEventListener('keydown', closeMessage);
       window.utils.$('main').prepend(message);
 
@@ -58,6 +57,7 @@
 
   // Добавляем обработчик отправки формы, в котором будем её валидировать.
   window.consts.newForm.addEventListener('submit', window.newForm.submitHandler);
+
   window.utils.$('.ad-form__reset').addEventListener('click', window.state.setToDefault);
   // Добавляем обработчики событий для связи изменения времени заезда и выезда
   // заезд
