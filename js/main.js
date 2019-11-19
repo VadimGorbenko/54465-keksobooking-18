@@ -8,26 +8,25 @@ window.app = {
 window.consts.mainPin.addEventListener('mousedown', function (evt) {
   var TOP_LIMIT = 130;
   var BOTTOM_LIMIT = 630;
+  var FULL_PIN_HEIGHT = 87;
 
   window.state.setActive();
 
   var pin = evt.currentTarget;
   var pinParent = pin.parentElement;
+  var pinParentParams = pinParent.getBoundingClientRect();
+
+  var shiftX = evt.offsetX;
+  var shiftY = evt.offsetY;
 
   var pinParentCoords = pinParent.getBoundingClientRect();
-  var pinParentCoordsX = pinParentCoords.left;
-  var pinParentCoordsY = pinParentCoords.top;
-
   var coords = pin.getBoundingClientRect();
-  var coordsX = pin.offsetLeft;
-  var coordsY = pin.offsetTop;
-  var shiftX = evt.clientX - pinParentCoordsX - coordsX;
-  var shiftY = evt.clientY - pinParentCoordsY - coordsY;
 
   var leftLimit = -(coords.width / 2);
   var rightLimit = pinParentCoords.width - coords.width / 2;
 
-  dragMainPin(evt.clientX, evt.clientY);
+
+  dragMainPin(evt.pageX, evt.page);
 
   /**
    * @description передвигаем метку, проверяя лимиты
@@ -36,8 +35,10 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
    */
   function dragMainPin(x, y) {
     // корректировка координат, чтобы можно было хватать за любое место метки.
-    var newX = x - pinParentCoordsX - shiftX;
-    var newY = y - pinParentCoordsY - shiftY;
+    var newX = x - pinParentParams.left - window.scrollX - shiftX;
+    var newY = y - pinParentParams.top - window.scrollY - shiftY;
+
+    var pinPeakY = newY + FULL_PIN_HEIGHT;
 
     if (newX < leftLimit) {
       newX = leftLimit;
@@ -45,10 +46,10 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
       newX = rightLimit;
     }
 
-    if (newY < TOP_LIMIT) {
-      newY = TOP_LIMIT;
-    } else if (newY > BOTTOM_LIMIT) {
-      newY = BOTTOM_LIMIT;
+    if (pinPeakY < TOP_LIMIT) {
+      newY = TOP_LIMIT - FULL_PIN_HEIGHT;
+    } else if (pinPeakY > BOTTOM_LIMIT) {
+      newY = BOTTOM_LIMIT - FULL_PIN_HEIGHT;
     }
 
     pin.style.left = newX + 'px';
@@ -56,7 +57,7 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
   }
 
   function onMouseMove(moveEvt) {
-    dragMainPin(moveEvt.x, moveEvt.y);
+    dragMainPin(moveEvt.pageX, moveEvt.pageY);
     window.address.setAddress('active');
   }
 
