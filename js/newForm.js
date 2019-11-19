@@ -42,7 +42,7 @@
       message.addEventListener('click', function (evt) {
         evt.currentTarget.remove();
       });
-      
+
       window.document.addEventListener('keydown', closeMessage);
       window.utils.$('main').prepend(message);
 
