@@ -69,11 +69,11 @@ window.consts.mainPin.addEventListener('mousedown', function (evt) {
 
 // Обработчик нажатия клавиши на основную метку по Enter
 window.consts.mainPin.addEventListener('keydown', function (evt) {
-  
+
   if (window.utils.isEnterKey(evt.keyCode)) {
     window.state.setActive();
   }
-  
+
 });
 
 
