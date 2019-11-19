@@ -6,6 +6,10 @@
   var TIMEOUT_INPUT = window.consts.newForm.querySelector('#timeout');
   var ROOMS_INPUT = window.consts.newForm.querySelector('#room_number');
   var GUESTS_INPUT = window.consts.newForm.querySelector('#capacity');
+  var AVATAR_INPUT = window.consts.newForm.querySelector('#avatar');
+  var AVATAR_INPUT_DROPZONE = window.consts.newForm.querySelector('.ad-form-header__drop-zone');
+  var PHOTOS_INPUT = window.consts.newForm.querySelector('#images');
+  var PHOTOS_INPUT_DROPZONE = window.consts.newForm.querySelector('.ad-form__drop-zone');
   var NOT_FOR_GUESTS_ROOMS = 100;
   var NOT_FOR_GUESTS_CAPACITY = 0;
 
@@ -104,6 +108,76 @@
       });
       GUESTS_INPUT.value = value;
     }
+  }
+
+  // Добавим обработчики событий на изменения инпутов файлов и их драг-н-дрон зоны.
+  AVATAR_INPUT.addEventListener('change', filesChangeHandler);
+  AVATAR_INPUT_DROPZONE.addEventListener('dragover', dropzoneDragoverHandler);
+  AVATAR_INPUT_DROPZONE.addEventListener('drop', dragzoneDropHandler);
+  PHOTOS_INPUT.addEventListener('change', filesChangeHandler);
+  PHOTOS_INPUT_DROPZONE.addEventListener('dragover', dropzoneDragoverHandler);
+  PHOTOS_INPUT_DROPZONE.addEventListener('drop', dragzoneDropHandler);
+
+  /**
+   * @description функция обработчик изменения файлов. Проверяет, как был изменён инпут, напрямую или через drag-n-drop и рисует превью.
+   * @param {Event} evt - объект события.
+   */
+  function filesChangeHandler(evt) {
+    var isByDrop = evt.dataTransfer ? true : false;
+    var imgContainer;
+    var files;
+    if (isByDrop) {
+      files = evt.dataTransfer.files;
+      imgContainer = evt.target.htmlFor === 'avatar' ? window.consts.avatarInputPreview : window.consts.photosInputPreview;
+    } else {
+      files = evt.target.files;
+      imgContainer = evt.target.name === 'avatar' ? window.consts.avatarInputPreview : window.consts.photosInputPreview;
+    }
+
+    previewImages(files, imgContainer);
+  }
+
+  /**
+   * @description Загружает картинку из files как dataURI и отображает её в imgContainer;
+   * @param {*} files
+   * @param {*} imgContainer
+   */
+  function previewImages(files, imgContainer) {
+    var PREVIEW_SIZE = 40;
+
+    [].forEach.call(files, function (file) {
+
+      if (file.type.match(/image.*/)) {
+        var reader = new FileReader();
+
+        reader.onload = function (loadEvent) {
+          imgContainer.innerHTML = '';
+          var img = document.createElement('img');
+          img.src = loadEvent.target.result;
+          img.width = PREVIEW_SIZE;
+          img.height = PREVIEW_SIZE;
+
+          imgContainer.appendChild(img);
+        };
+
+        reader.readAsDataURL(file);
+      }
+
+    });
+  }
+
+  function dropzoneDragoverHandler(evt) {
+    evt.preventDefault();
+
+    evt.target.classList.add('active');
+    evt.dataTransfer.dropEffect = 'copy';
+  }
+
+  function dragzoneDropHandler(evt) {
+    evt.preventDefault();
+
+    evt.target.classList.remove('active');
+    filesChangeHandler(evt);
   }
 
   // Добавление обработчика изменения минимальной цены за ночь в зависимости от типа жилья размещаемого объявления.

@@ -21,8 +21,11 @@
 
       window.pins.clearPins();
       window.pins.clearCards();
+      window.consts.avatarInputPreview.innerHTML = '';
+      window.consts.photosInputPreview.innerHTML = '';
       MAP.classList.add('map--faded');
       window.consts.newForm.classList.add('ad-form--disabled');
+      window.filterForm.resetFilters();
       Array.prototype.forEach.call(window.consts.newForm.elements, disableFieldset);
       window.consts.mainPin.style.left = MAIN_PIN_DEFAULT_LEFT;
       window.consts.mainPin.style.top = MAIN_PIN_DEFAULT_TOP;
