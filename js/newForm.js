@@ -70,28 +70,37 @@
     TIMEIN_INPUT.value = evt.target.value;
   });
 
-  ROOMS_INPUT.addEventListener('change', roomsChamgehandler);
+  ROOMS_INPUT.addEventListener('change', roomsChangeHandler);
 
-  function roomsChamgehandler(evt) {
+  /**
+   * @description функция, сопоставляющая возможные варианты выбора количества гостей, в зависимости от выбранного количества комнат.
+   * @param {Event} evt - событие изменения.
+   */
+  function roomsChangeHandler(evt) {
     var value = Number(evt.target.value);
+
     if (value === NOT_FOR_GUESTS_ROOMS) {
       GUESTS_INPUT.querySelectorAll('option').forEach(function (option) {
         var numberOptionValue = Number(option.value);
+
         if (numberOptionValue !== NOT_FOR_GUESTS_CAPACITY) {
           option.setAttribute('disabled', 'disabled');
         } else {
           option.removeAttribute('disabled');
         }
+
       });
       GUESTS_INPUT.value = NOT_FOR_GUESTS_CAPACITY;
     } else {
       GUESTS_INPUT.querySelectorAll('option').forEach(function (option) {
         var numberOptionValue = Number(option.value);
+
         if (numberOptionValue > value || numberOptionValue === NOT_FOR_GUESTS_CAPACITY) {
           option.setAttribute('disabled', 'disabled');
         } else {
           option.removeAttribute('disabled');
         }
+
       });
       GUESTS_INPUT.value = value;
     }

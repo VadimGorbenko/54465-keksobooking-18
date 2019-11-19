@@ -1,11 +1,12 @@
 'use strict';
 
 (function () {
+  var MAP = window.utils.$('.map');
 
   window.state = {
     // Переводит интерфейс в "активное" состояние.
     setActive: function () {
-      window.utils.$('.map').classList.remove('map--faded');
+      MAP.classList.remove('map--faded');
       if (!window.app.isDataLoaded) {
         window.pins.drawPins(window.filterForm.filterCallback);
       }
@@ -20,17 +21,18 @@
 
       window.pins.clearPins();
       window.pins.clearCards();
-      window.utils.$('.map').classList.add('map--faded');
+      MAP.classList.add('map--faded');
       window.consts.newForm.classList.add('ad-form--disabled');
       Array.prototype.forEach.call(window.consts.newForm.elements, disableFieldset);
       window.consts.mainPin.style.left = MAIN_PIN_DEFAULT_LEFT;
       window.consts.mainPin.style.top = MAIN_PIN_DEFAULT_TOP;
+
       if (evt) {
         evt.preventDefault();
         window.utils.$('.ad-form').reset();
       }
-      window.address.setAddress('default');
 
+      window.address.setAddress('default');
       window.app.isDataLoaded = false;
     }
   };
